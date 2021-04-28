@@ -14,10 +14,10 @@ import com.google.gson.Gson;
  *
  */
 public class App {
-	
+
 	static AccessLog accesslog = null;
 	static AccessCode accesscode = null;
-	
+
 	public static void main(String[] args) {
 
 		if (args.length > 0) {
@@ -27,45 +27,56 @@ public class App {
 		}
 
 		// objects for data stored in the service
-		
+
 		accesslog = new AccessLog();
-		accesscode  = new AccessCode();
-		
+		accesscode = new AccessCode();
+
 		after((req, res) -> {
-  		  res.type("application/json");
-  		});
-		
+			res.type("application/json");
+		});
+
 		// for basic testing purposes
 		get("/accessdevice/hello", (req, res) -> {
-			
-		 	Gson gson = new Gson();
-		 	
-		 	return gson.toJson("IoT Access Control Device");
+
+			Gson gson = new Gson();
+
+			return gson.toJson("IoT Access Control Device");
 		});
-		
+
 		// TODO: implement the routes required for the access control service
 		// as per the HTTP/REST operations describined in the project description
-		
+
 		// må ha noe for GET/accessdevice/log/-returnerer alle access log entries
-		get("/accessdevice/log",(req, res) -> { return  accesslog.toJson();
+		get("/accessdevice/log", (req, res) -> {
+			return accesslog.toJson();
 
-			
 		});
-		//GET/accessdevice/log/{id} -returnerer en JSON representasjon av entry med id=id
-		get("/accessdevice/log/:id", (req,res) -> { return accesslog.get(Integer.parseInt(req.params(":id")));
-		
+		// GET/accessdevice/log/{id} -returnerer en JSON representasjon av entry med
+		// id=id
+		get("/accessdevice/log/:id", (req, res) -> {
+			return accesslog.get(Integer.parseInt(req.params(":id")));
+
 		});
 
-		//PUT/accessdevice/code skal oppaterer access koden
-		put("/accessdevice/code", (req,res) -> { 
+		// PUT/accessdevice/code skal oppaterer access koden
+		put("/accessdevice/code", (req, res) -> {
 			Gson gson = new Gson();
-			
-int[] newCode=gson.fromJson(req.body(), int[].class);
-	accesscode.setAccesscode(newCode);		
+
+			int[] newCode = gson.fromJson(req.body(), int[].class);
+			accesscode.setAccesscode(newCode);
+			return newCode;
 		});
-		//GET/accessdevice/code skal returnere den nåværede access koden(skal kunne hentes av ardoinoen)
-		
-		//DELETE/accessdevice/log/ skal slette alle entries i access log og returnere en JSON-representasjon av en tom access log i response
-    }
-    
+		// GET/accessdevice/code skal returnere den nåværede access koden(skal kunne
+		// hentes av ardoinoen)
+		get("/accessdevice/code", (req, res) -> {
+			return accesscode.getAccesscode();
+
+		});
+		// DELETE/accessdevice/log/ skal slette alle entries i access log og returnere
+		// en JSON-representasjon av en tom access log i response
+         delete("/accessdevice/log", (req, res) -> { accesslog.clear();
+        	 return accesslog.toJson();
+         });
+	}
+
 }
