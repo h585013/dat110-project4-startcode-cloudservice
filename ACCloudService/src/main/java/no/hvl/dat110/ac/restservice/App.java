@@ -45,7 +45,16 @@ public class App {
 
 		// TODO: implement the routes required for the access control service
 		// as per the HTTP/REST operations describined in the project description
+		
+ // request med AccessMessage, legger accessmessage til i log og sender i response entrien fra log
+		post("/accessdevice/log" , (req,res)->{ 
+			Gson gson = new Gson();
 
+			AccessMessage message= gson.fromJson(req.body(), AccessMessage.class);
+			int id= accesslog.add(message.getMessage());
+			return gson.toJson(accesslog.get(id));
+			
+		});
 		// må ha noe for GET/accessdevice/log/-returnerer alle access log entries
 		get("/accessdevice/log", (req, res) -> {
 			return accesslog.toJson();
@@ -54,7 +63,8 @@ public class App {
 		// GET/accessdevice/log/{id} -returnerer en JSON representasjon av entry med
 		// id=id
 		get("/accessdevice/log/:id", (req, res) -> {
-			return accesslog.get(Integer.parseInt(req.params(":id")));
+			Gson gson = new Gson();
+			return gson.toJson(accesslog.get(Integer.parseInt(req.params(":id"))));
 
 		});
 
@@ -62,14 +72,20 @@ public class App {
 		put("/accessdevice/code", (req, res) -> {
 			Gson gson = new Gson();
 
-			int[] newCode = gson.fromJson(req.body(), int[].class);
-			accesscode.setAccesscode(newCode);
-			return newCode;
+			//int[] newCode = gson.fromJson(req.body(), int[].class);
+			//accesscode.setAccesscode(newCode);
+			AccessCode a= gson.fromJson(req.body(), AccessCode.class);
+			accesscode.setAccesscode(a.getAccesscode());
+			
+			
+			return gson.toJson(accesscode);
 		});
 		// GET/accessdevice/code skal returnere den nåværede access koden(skal kunne
 		// hentes av ardoinoen)
 		get("/accessdevice/code", (req, res) -> {
-			return accesscode.getAccesscode();
+			Gson gson = new Gson();
+			
+			return gson.toJson(accesscode);
 
 		});
 		// DELETE/accessdevice/log/ skal slette alle entries i access log og returnere
